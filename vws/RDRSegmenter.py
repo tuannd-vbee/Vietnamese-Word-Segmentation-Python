@@ -12,6 +12,11 @@ class RDRSegmenter:
     def __init__(self,model_path=None,vocab_path=None):
         self._root = None
         self.vocab_path = vocab_path
+        if self.vocab_path is None:
+            self.vocab = Vocabulary()
+        else:
+            self.vocab = Vocabulary(self.vocab_path)
+
         try:
             if model_path is None:
                 self.constructTreeFromRulesFile(os.path.join(os.path.dirname(__file__),"Model.RDR"))
@@ -97,10 +102,7 @@ class RDRSegmenter:
         return True
     def getInitialSegmentation(self,sentence:str)->list:
         wordtags = []
-        if self.vocab_path is None:
-            vocab = Vocabulary()
-        else:
-            vocab = Vocabulary(self.vocab_path)
+        
         for regex in utils.NORMALIZER_KEYS:
             if regex in sentence:
                 sentence = sentence.replace(regex, utils.NORMALIZER[regex])
@@ -119,7 +121,7 @@ class RDRSegmenter:
                 isSingleSyllabel = True
                 for j in range(min(i + 4, senLength), i + 1,-1):
                     word = " ".join(lowerTokens[i: j])
-                    if word in vocab.VN_DICT or word in vocab.VN_LOCATIONS or word in vocab.COUNTRY_L_NAME:
+                    if word in self.vocab.VN_DICT or word in self.vocab.VN_LOCATIONS or word in self.vocab.COUNTRY_L_NAME:
                         wordtags.append(WordTag(token, "B"))
                         for k in range(i+1,j):
                             wordtags.append(WordTag(tokens[k], "I"))
@@ -131,11 +133,11 @@ class RDRSegmenter:
                 if isSingleSyllabel :
                     lowercasedToken = lowerTokens[i]
 
-                    if lowercasedToken in vocab.VN_FIRST_SENT_WORDS    \
+                    if lowercasedToken in self.vocab.VN_FIRST_SENT_WORDS    \
                             or token[0].islower()   \
                             or self.allIsUpper(token)   \
-                            or lowercasedToken in vocab.COUNTRY_S_NAME \
-                            or lowercasedToken in vocab.WORLD_COMPANY :    \
+                            or lowercasedToken in self.vocab.COUNTRY_S_NAME \
+                            or lowercasedToken in self.vocab.WORLD_COMPANY :    \
 
                         wordtags.append(WordTag(token, "B"))
                         i+=1
@@ -150,10 +152,10 @@ class RDRSegmenter:
 
                     if ilower > i + 1:
                         isNotMiddleName = True
-                        if lowercasedToken in vocab.VN_MIDDLE_NAMES and i >= 1:
+                        if lowercasedToken in self.vocab.VN_MIDDLE_NAMES and i >= 1:
                             prevT = tokens[i-1]
                             if prevT[0].isupper():
-                                if prevT.lower() in vocab.VN_FAMILY_NAMES:
+                                if prevT.lower() in self.vocab.VN_FAMILY_NAMES:
                                     wordtags.append(WordTag(token, "I"))
                                     isNotMiddleName = False
                         if isNotMiddleName:
