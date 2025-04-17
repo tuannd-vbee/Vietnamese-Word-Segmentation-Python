@@ -176,7 +176,7 @@ class Tokenizer:
                 if nextToken.isnumeric() and tokens[i+2]==StringConst.STOP  \
                         or tokens[i+2] == StringConst.COMMA:
                     sentences.append(self.joinSentence(sentence))
-                    sentence = ''
+                    sentence = []
                     continue
 
 
@@ -190,7 +190,7 @@ class Tokenizer:
                     if count % 2 == 1:
                         continue
 
-                if StringUtils.isBrace(nextToken) or nextToken=="" or nextToken[0].islower()    \
+                if StringUtils().isBrace(nextToken) or nextToken=="" or nextToken[0].islower()    \
                         or nextToken==StringConst.COMMA or nextToken[0].isnumeric():
                     continue
 
@@ -205,7 +205,7 @@ class Tokenizer:
 
 
                 sentences.append(self.joinSentence(sentence))
-                sentence = ""
+                sentence = []
         return sentences
 
     def joinSentence(self,tokens):
